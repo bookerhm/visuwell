@@ -1,0 +1,53 @@
+<script>
+// Pass Tracking Parameters to a Form on Another Page Using GTM
+// http://zackphilipps.com/store-gclid-cookie-send-to-hubspot/
+
+function getCookie(name) {
+  var value = '; ' + document.cookie;
+  var parts = value.split('; ' + name + '=');
+  if (parts.length == 2)
+    return parts.pop().split(';').shift();
+}
+
+function setCookie(name, value, days) {
+  var date = new Date();
+  date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+  var expires = '; expires=' + date.toGMTString();
+  document.cookie = name + '=' + value + expires + ';path=/';
+}
+
+function getParam(p) {
+  var match = RegExp('[?&]' + p + '=([^&]*)').exec(window.location.search);
+  return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+}
+
+function assignTrackingParameterToCookie(fieldParam, formType) {
+  var field = getParam(fieldParam);
+  if(field) {
+    setCookie(fieldParam, field, 365);
+  }
+  if(formType == "gform") {
+      var inputs = document.querySelectorAll('.' + fieldParam + ' input[type="text"]');
+      assignCookieValueToFormInput(fieldParam, inputs);
+  } else if(formType == 'hubspot') {
+      var inputs = document.querySelectorAll('.hs-input[name="' + fieldParam + '"]');
+      assignCookieValueToFormInput(fieldParam, inputs);
+   }
+  }
+
+function assignCookieValueToFormInput(fieldParam, inputs) {
+  var field = getCookie(fieldParam),
+    length = inputs.length;
+  if(field && length) {
+    for(var i = 0; i < length; i++) {
+      inputs[i].value = field;
+    }
+  }
+}  
+window.onload = function() {  
+	assignTrackingParameterToCookie('gclid', "gform");  
+	assignTrackingParameterToCookie('utm_source', "gform");  
+	assignTrackingParameterToCookie('utm_medium', "gform"); 
+	assignTrackingParameterToCookie('utm_campaign', "gform"); 
+}
+</script>
